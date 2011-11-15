@@ -70,14 +70,15 @@ class Connection(object):
         msg = conn.send_cmd('PASS ' + settings.FTP_PASSWORD )
         msg = conn.send_cmd('SYST')
         msg = conn.send_cmd('PWD')
+        return msg
     
     def ftp_makepasv(conn):
-        host, port = parse227(conn.send_cmd('PASV'))
+        host, port = self.ftp_parse227(conn.send_cmd('PASV'))
         return host, port
 
     def ftp_list_directory(conn):
         msg = conn.send_cmd('TYPE I')
-        pasv_host, pasv_port = makepasv(conn)
+        pasv_host, pasv_port = ftp_makepasv(conn)
         conn_pasv = Connection(pasv_host, pasv_port)
         msg = conn.send_cmd('LIST')
         msg2 = conn_pasv.receive()
@@ -91,7 +92,7 @@ class Connection(object):
         command = 'STOR '+f
         f = open(filename,"rb")
         msg = conn.send_cmd('TYPE A')
-        pasv_host, pasv_port = makepasv(conn)
+        pasv_host, pasv_port = ftp_makepasv(conn)
         conn_pasv = Connection(pasv_host, pasv_port)
         msg = conn.send_cmd(command)
         msg2 = conn_pasv.storbinary(f)
@@ -105,7 +106,7 @@ class Connection(object):
         command = 'RETR '+f
         f = open(filename,"wb")   
         msg = conn.send_cmd('TYPE A')
-        pasv_host, pasv_port = makepasv(conn)
+        pasv_host, pasv_port = ftp_makepasv(conn)
         conn_pasv = Connection(pasv_host, pasv_port)
         msg = conn.send_cmd(command)
         data = conn_pasv.retrbinary(f)
@@ -114,15 +115,14 @@ class Connection(object):
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
-    httpd = server_class((settings.HOST_NAME, settings.HOST_PORT_NUMBER), MyHandler)
+    #httpd = server_class((settings.HOST_NAME, settings.HOST_PORT_NUMBER), MyHandler)
     print time.asctime(), "Server Starts - %s:%s" % (settings.HOST_NAME, settings.HOST_PORT_NUMBER)
     
     conn = Connection(settings.FTP_HOST, settings.FTP_PORT)
-    login(conn)
-    msg2 = listdirectory(conn)
-
-    uploadfile(conn,"putty.exe")
-    downloadfile(conn,"readme.txt")
+    msg = Connection.ftp_login(conn)
+    msg = Connection.ftp_list_directory(conn)
+    msg = Connection.ftp_upload_file(conn,"putty.exe")
+    msg = Connection.ftp_download_file(conn,"readme.txt")
 
     #MyHttpServer = MyHttpServer()
     #MyHttpServer.start()
