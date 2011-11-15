@@ -64,7 +64,7 @@ class Connection(object):
         port = (int(numbers[4]) << 8) + int(numbers[5])
         return host, port
 
-    def ftp_login(conn):
+    def ftp_login(self, conn):
         msg = conn.receive()
         msg = conn.send_cmd('USER ' + settings.FTP_LOGIN )
         msg = conn.send_cmd('PASS ' + settings.FTP_PASSWORD )
@@ -72,13 +72,13 @@ class Connection(object):
         msg = conn.send_cmd('PWD')
         return msg
     
-    def ftp_makepasv(conn):
+    def ftp_makepasv(self, conn):
         host, port = self.ftp_parse227(conn.send_cmd('PASV'))
         return host, port
 
-    def ftp_list_directory(conn):
+    def ftp_list_directory(self, conn):
         msg = conn.send_cmd('TYPE I')
-        pasv_host, pasv_port = ftp_makepasv(conn)
+        pasv_host, pasv_port = self.ftp_makepasv(conn)
         conn_pasv = Connection(pasv_host, pasv_port)
         msg = conn.send_cmd('LIST')
         msg2 = conn_pasv.receive()
@@ -86,13 +86,13 @@ class Connection(object):
         conn_pasv.close()
         return msg2
 
-    def ftp_upload_file(conn, f):
+    def ftp_upload_file(self, conn, f):
         #TODO: change to variable and find better way to add file name to string
         filename = 'pyftp_upload/'+f
         command = 'STOR '+f
         f = open(filename,"rb")
         msg = conn.send_cmd('TYPE A')
-        pasv_host, pasv_port = ftp_makepasv(conn)
+        pasv_host, pasv_port = self.ftp_makepasv(conn)
         conn_pasv = Connection(pasv_host, pasv_port)
         msg = conn.send_cmd(command)
         msg2 = conn_pasv.storbinary(f)
@@ -101,12 +101,12 @@ class Connection(object):
         f.close()
         return msg2
 
-    def ftp_download_file(conn, f):
+    def ftp_download_file(self, conn, f):
         filename = f
         command = 'RETR '+f
         f = open(filename,"wb")   
         msg = conn.send_cmd('TYPE A')
-        pasv_host, pasv_port = ftp_makepasv(conn)
+        pasv_host, pasv_port = self.ftp_makepasv(conn)
         conn_pasv = Connection(pasv_host, pasv_port)
         msg = conn.send_cmd(command)
         data = conn_pasv.retrbinary(f)
@@ -119,10 +119,10 @@ if __name__ == '__main__':
     print time.asctime(), "Server Starts - %s:%s" % (settings.HOST_NAME, settings.HOST_PORT_NUMBER)
     
     conn = Connection(settings.FTP_HOST, settings.FTP_PORT)
-    msg = Connection.ftp_login(conn)
-    msg = Connection.ftp_list_directory(conn)
-    msg = Connection.ftp_upload_file(conn,"putty.exe")
-    msg = Connection.ftp_download_file(conn,"readme.txt")
+    msg = conn.ftp_login(conn)
+    msg = conn.ftp_list_directory(conn)
+    msg = conn.ftp_upload_file(conn,"putty.exe")
+    msg = conn.ftp_download_file(conn,"readme.txt")
 
     #MyHttpServer = MyHttpServer()
     #MyHttpServer.start()
