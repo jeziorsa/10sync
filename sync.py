@@ -13,6 +13,12 @@ import re
 # ===================================================
 # Connection class used manage basic socket connection
 
+#TODO: 
+# 1. serwerek
+# 2. string > data
+# 3. porownywanie i logika wysylania
+# 4. obsluga bledow
+
 class Connection(object):
 
     def __init__(self, host, port):
@@ -111,7 +117,32 @@ class Connection(object):
         msg = conn.send_cmd(command)
         data = conn_pasv.retrbinary(f)
         conn_pasv.close()
-        return msg2
+        return msg
+
+def names_dates(msg):
+    list
+    #print ">>> " +msg
+    msg2 = msg.splitlines()
+    msg2 = msg2[0].split()  
+    print msg2[5]
+    msg = month_to_numer(msg[5])
+    print msg
+
+def month_to_numer(name):
+    if name == "Jan": return 1
+    elif name == "Feb": return 2
+    elif name == "Mar": return 3
+    elif name == "Apr": return 4
+    elif name == "May": return 5
+    elif name == "Jun": return 6
+    elif name == "Jul": return 7
+    elif name == "Aug": return 8
+    elif name == "Sep": return 9
+    elif name == "Oct": return 10
+    elif name == "Nov": return 11
+    elif name == "Dec": return 12
+    else: print name
+
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
@@ -121,8 +152,9 @@ if __name__ == '__main__':
     conn = Connection(settings.FTP_HOST, settings.FTP_PORT)
     msg = conn.ftp_login(conn)
     msg = conn.ftp_list_directory(conn)
-    msg = conn.ftp_upload_file(conn,"putty.exe")
-    msg = conn.ftp_download_file(conn,"readme.txt")
+    msg = names_dates(msg)
+    #msg = conn.ftp_upload_file(conn,"putty.exe")
+    #msg = conn.ftp_download_file(conn,"readme.txt")
 
     #MyHttpServer = MyHttpServer()
     #MyHttpServer.start()
