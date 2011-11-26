@@ -1,15 +1,26 @@
 from wsgiref.util import setup_testing_defaults
 from wsgiref.simple_server import make_server
+import settings
 
 # A relatively simple WSGI application. It's going to print out the
 # environment dictionary after being updated by setup_testing_defaults
 
-"""
-def server_wsgi(environ, start_response)
+
+def server_wsgi(environ, start_response):
     setup_testing_defaults(environ)
+
     status = '200 OK'
+    headers = [('Content-type', 'text/plain')]
+
+    start_response(status, headers)
+
+    ret = ["%s: %s\n" % (key, value)
+           for key, value in environ.iteritems()]
+    return ret
+    
 
 
+"""
         s.send_response(200)
         s.send_header("Content-type", "text/html")
         s.end_headers()
