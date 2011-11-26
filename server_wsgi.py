@@ -6,7 +6,7 @@ import settings
 # environment dictionary after being updated by setup_testing_defaults
 
 
-def server_wsgi(environ, start_response):
+def server_wsgi_func(environ, start_response):
     setup_testing_defaults(environ)
 
     status = '200 OK'
@@ -16,33 +16,6 @@ def server_wsgi(environ, start_response):
 
     ret = ["%s: %s\n" % (key, value)
            for key, value in environ.iteritems()]
+
+    ret ='<html><head><title>Sync monitor</title>\n<meta http-equiv=\"refresh\" content=\"1\"></head>\n<body><h2>Sync Monitor</h2><p>Current sync status:</p><p></p></body></html>    '
     return ret
-    
-
-
-"""
-        s.send_response(200)
-        s.send_header("Content-type", "text/html")
-        s.end_headers()
-        s.wfile.write("<html><head><title>Sync monitor[%s]</title>" %sync_counter)
-        s.wfile.write("<meta http-equiv=\"refresh\" content=\"1\"></head>")
-        s.wfile.write("<body><h2>Sync Monitor</h2><p>Current sync status:</p><p>%s</p>" % sync_status)
-        s.wfile.write("<p>You accessed path: %s</p>" % s.path)
-        s.wfile.write("<p>Licznik: %s</p>" % sync_counter)
-        s.wfile.write("</body></html>")
-
-
-    headers = [('Content-type', 'textplain')]
-
-    start_response(status, headers)
-
-    ret = [%s %sn % (key, value)
-           for key, value in environ.iteritems()]
-    return ret
-
-httpd = make_server('', 80, server_wsgi)
-#print Serving on port 80...
-#httpd.serve_forever()
-
-"""
-

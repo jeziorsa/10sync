@@ -9,6 +9,7 @@ import re
 import settings
 import server_wsgi
 import re
+from wsgiref.simple_server import make_server
 
 # ===================================================
 # Connection class used manage basic socket connection
@@ -18,6 +19,14 @@ import re
 # 2. string > data
 # 3. porownywanie i logika wysylania
 # 4. obsluga bledow
+
+class HTTP_Server (threading.Thread):
+
+    def run(self):
+        httpd = make_server('', 80, server_wsgi.server_wsgi_func)
+        print "Serving on port 80..."
+        httpd.serve_forever()
+
 
 class File_and_data(object):
 
@@ -127,20 +136,21 @@ class Connection(object):
         conn_pasv.close()
         return msg
 
+
+
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
     #httpd = server_class((settings.HOST_NAME, settings.HOST_PORT_NUMBER), MyHandler)
     print time.asctime(), "Server Starts - %s:%s" % (settings.HOST_NAME, settings.HOST_PORT_NUMBER)
     
+
+    my_serv = HTTP_Server()
+    my_serv.start()
+
     conn = Connection(settings.FTP_HOST, settings.FTP_PORT)
     msg = conn.ftp_login(conn)
     msg_list_remote_files = conn.ftp_list_directory(conn)
-    #msg = names_dates(msg)
-    #msg = conn.send_cmd('MDTM putty.exe')
-    #print msg
-    #msg = month_to_numer('Nfv')
-    #print msg
-
+    
     list_local_files = os.listdir(settings.uploadDirectory)
     files_local = []
 
